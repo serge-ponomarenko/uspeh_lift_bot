@@ -8,6 +8,7 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - name: Deploy via SSH
@@ -22,7 +23,7 @@ jobs:
             echo "Pulling latest changes..."
             git reset --hard
             git clean -fd
-            git pull origin master
+            git pull origin main
 
             echo "Stopping Docker containers..."
             docker compose --env-file ${{ secrets.SERVER_ENV_FILE_LOCATION }} down

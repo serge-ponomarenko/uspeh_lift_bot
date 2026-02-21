@@ -1,25 +1,31 @@
-# -------- Build stage --------
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# -----------------------
+# Build stage
+# -----------------------
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
+# Copy only pom.xml first to leverage Docker cache
 COPY pom.xml .
+
+# Use BuildKit cache mount for Maven
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn dependency:go-offline -B
+
+# Now copy the rest of the source code
 COPY src ./src
 
-RUN mvn clean package -DskipTests
+# Build app using cache
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn clean package -DskipTests
 
-# -------- Runtime stage --------
-FROM eclipse-temurin:17-jre-alpine
-
+# -----------------------
+# Runtime stage
+# -----------------------
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
-RUN addgroup -S spring && adduser -S spring -G spring
-
+# Copy jar from build stage
 COPY --from=build /app/target/*.jar app.jar
 
-RUN chown -R spring:spring /app
-USER spring
-
-EXPOSE 8080
-
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar app.jar"]
