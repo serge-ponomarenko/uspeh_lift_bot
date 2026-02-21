@@ -26,7 +26,7 @@ jobs:
             git pull origin main
 
             echo "Stopping Docker containers..."
-            docker compose --env-file ${{ secrets.SERVER_ENV_FILE_LOCATION }} down
+            sudo docker compose --env-file ${{ secrets.SERVER_ENV_FILE_LOCATION }} down
 
             echo "Starting Docker containers..."
-            docker compose --env-file ${{ secrets.SERVER_ENV_FILE_LOCATION }} up --build -d
+            sudo docker compose --env-file ${{ secrets.SERVER_ENV_FILE_LOCATION }} up --build -d
