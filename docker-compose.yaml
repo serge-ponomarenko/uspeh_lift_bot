@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  app:
+    image: my-spring-app:latest
+    container_name: spring-bot
+    restart: unless-stopped
+    ports:
+      - "8886:8080"
+    env_file:
+      - ./.env
+    volumes:
+      - ./data:/app/app_database
+      - ./logs:/app/logs
