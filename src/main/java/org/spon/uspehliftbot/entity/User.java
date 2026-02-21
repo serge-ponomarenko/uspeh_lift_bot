@@ -15,7 +15,7 @@ import java.util.List;
 public class User {
 
     @Id
-    private long chatId;
+    private Long chatId;
 
     private String userName;
     private String name;

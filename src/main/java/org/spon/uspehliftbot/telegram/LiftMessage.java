@@ -8,7 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.spon.uspehliftbot.SettingsManager;
 import org.spon.uspehliftbot.entity.User;
+import org.spon.uspehliftbot.entity.UserAction;
+import org.spon.uspehliftbot.repository.UserRepository;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Component;
 public class LiftMessage {
 
     private final SettingsManager settingsManager;
+    private final UserRepository userRepository;
 
     public void enterLiftMessage(BotContext context, User user) {
         String userMessage = String.format("""
@@ -143,6 +148,15 @@ public class LiftMessage {
                 .messageThreadId(settingsManager.getAlarmThreadId())
                 .exec();
 
+        UserAction userAction = UserAction.builder()
+                .user(user)
+                .action(UserAction.Action.STUCK)
+                .actionDate(new Date())
+                .isPassengerLift(isPassengerLift)
+                .build();
+        user.getUserActions().add(userAction);
+        userRepository.save(user);
+
         log.info("!!! {} ({}) has been stuck! Section: {}, {}",
                 user.getName(), user.getUserName(), user.getUserSection(), isPassengerLift ? "Passenger" : "Cargo");
 
@@ -150,12 +164,12 @@ public class LiftMessage {
 
     public void unknownUserMessage(BotContext context, Long chatId) {
         context.sendMessage(chatId, """
-                            😅 <b>Упс!</b>
-                            
-                            Схоже, ми ще не знайомі.
-                            
-                            Натисни /start — і я швидко проведу тебе через реєстрацію 🛗✨
-                            """)
+                        😅 <b>Упс!</b>
+                        
+                        Схоже, ми ще не знайомі.
+                        
+                        Натисни /start — і я швидко проведу тебе через реєстрацію 🛗✨
+                        """)
                 .parseMode(ParseMode.HTML)
                 .exec();
     }

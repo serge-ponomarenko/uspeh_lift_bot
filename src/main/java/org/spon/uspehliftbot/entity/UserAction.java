@@ -15,7 +15,7 @@ public class UserAction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "chat_id", nullable = false)
@@ -28,7 +28,8 @@ public class UserAction {
 
     public enum Action {
         ENTER,
-        EXIT
+        EXIT,
+        STUCK
     }
 
 }
