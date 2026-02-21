@@ -4,6 +4,7 @@ import io.github.natanimn.telebof.BotContext;
 import io.github.natanimn.telebof.enums.ParseMode;
 import io.github.natanimn.telebof.types.updates.Message;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -15,9 +16,15 @@ import java.util.List;
 @Component("log")
 public class LogCommand implements Command {
 
+    @Value("${telegram.admin-id}")
+    private Long adminId;
+
     @Override
     @SneakyThrows
     public void runCommand(BotContext ctx, Message message) {
+        long chatId = message.getChat().getId();
+        if (chatId != adminId) return;
+
         Path logPath = Paths.get("./logs/application.log");
         List<String> arguments = getArguments(message);
         int n = !arguments.isEmpty() ? Integer.parseInt(arguments.get(0)) : 15; // Number of last lines to read
